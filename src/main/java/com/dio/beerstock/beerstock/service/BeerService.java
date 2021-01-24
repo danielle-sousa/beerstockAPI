@@ -1,7 +1,13 @@
 package com.dio.beerstock.beerstock.service;
 
 import com.dio.beerstock.beerstock.entity.Beer;
+import com.dio.beerstock.beerstock.dto.BeerDTO;
+import com.dio.beerstock.beerstock.exception.BeerStockExceededException;
+import com.dio.beerstock.beerstock.exception.BeerNotFoundException;
+import com.dio.beerstock.beerstock.exception.BeerAlreadyRegisteredException;
 import com.dio.beerstock.beerstock.repository.BeerRepository;
+import com.dio.beerstock.beerstock.mapper.BeerMapper;
+
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,5 +58,16 @@ public class BeerService {
     private Beer verifyIfExists(Long id) throws BeerNotFoundException {
         return beerRepository.findById(id)
                 .orElseThrow(() -> new BeerNotFoundException(id));
+    }
+
+    public BeerDTO increment(Long id, int quantityToIncrement) throws BeerNotFoundException, BeerStockExceededException {
+        Beer beerToIncrementStock = verifyIfExists(id);
+        int quantityAfterIncrement = quantityToIncrement + beerToIncrementStock.getQuantity();
+        if (quantityAfterIncrement <= beerToIncrementStock.getMax()) {
+            beerToIncrementStock.setQuantity(beerToIncrementStock.getQuantity() + quantityToIncrement);
+            Beer incrementedBeerStock = beerRepository.save(beerToIncrementStock);
+            return beerMapper.toDTO(incrementedBeerStock);
+        }
+        throw new BeerStockExceededException(id, quantityToIncrement);
     }
 }
