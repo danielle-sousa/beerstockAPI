@@ -1,5 +1,7 @@
 package com.dio.beerstock.beerstock.entity;
 
+import com.dio.beerstock.beerstock.enums.BeerType;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
